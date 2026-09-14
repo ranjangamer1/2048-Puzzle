@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>2048 - Black Artistic</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #0c0c0e;
+      color: #f4f4f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      overflow-x: hidden;
+      padding: 10px 14px;
+    }
+    .banner-container {
+      width: 100%;
+      max-width: 440px;
+      margin: 4px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .adsterra-slot {
+      width: 320px;
+      min-height: 50px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #141418;
+      border: 1px solid #27272e;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+    .adsterra-slot iframe {
+      display: block;
+      margin: 0 auto;
+    }
+    .ad-card {
+      position: relative;
+      width: 100%;
+      height: 58px;
+      background: #141418;
+      border: 1px solid #27272e;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      overflow: hidden;
+    }
+    .ad-card:hover {
+      border-color: #3b3b47;
+      background: #18181f;
+    }
+    .ad-badge-top {
+      position: absolute;
+      top: 3px;
+      right: 10px;
+      font-size: 8px;
+      font-weight: 700;
+      color: #71717a;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .ad-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 14px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+    .ad-details {
+      display: flex;
+      flex-direction: column;
+      margin-left: 10px;
+      flex-grow: 1;
+      min-width: 0;
+    }
+    .ad-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #f4f4f5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ad-meta {
+      font-size: 10px;
+      color: #a1a1aa;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 1px;
+    }
+    .ad-rating {
+      color: #fbbf24;
+      font-weight: bold;
+    }
+    .ad-btn {
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: white;
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .main-wrap {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: auto 0;
+    }
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 46px;
+      margin-bottom: 10px;
+    }
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #18181b;
+      border: 1px solid #27272a;
+      color: #d4d4d8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .icon-btn:hover {
+      color: white;
+      border-color: #3f3f46;
+    }
+    .icon-btn:active {
+      transform: scale(0.94);
+    }
+    .scores-row {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .score-card {
+      position: relative;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 16px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .score-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #a1a1aa;
+      letter-spacing: 1px;
+    }
+    .score-val {
+      font-size: 22px;
+      font-weight: 900;
+      color: #f4f4f5;
+    }
+    .best-val {
+      color: #fbbf24;
+    }
+    .score-float {
+      position: absolute;
+      top: -14px;
+      right: 14px;
+      font-size: 14px;
+      font-weight: 900;
+      color: #fbbf24;
+      animation: floatUp 0.6s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-20px); }
+    }
+    .board-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #18181b;
+      border: 6px solid #222226;
+      border-radius: 22px;
+      padding: 8px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+      touch-action: none;
+      overflow: hidden;
+    }
+    .grid-bg {
+      position: absolute;
+      inset: 8px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 8px;
+      pointer-events: none;
+    }
+    .bg-cell {
+      background: #222226;
+      border-radius: 14px;
+    }
+    .tiles-layer {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    .tile {
+      position: absolute;
+      width: 25%;
+      height: 25%;
+      padding: 4px;
+      transition: transform 100ms ease-in-out;
+      will-change: transform;
+      z-index: 10;
+    }
+    .tile-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .tile-new .tile-inner {
+      animation: appear 180ms cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
+    }
+    .tile-merged .tile-inner {
+      animation: pop 200ms ease-in-out;
+    }
+    @keyframes appear {
+      0% { opacity: 0; transform: scale(0); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes pop {
+      0% { transform: scale(0.85); }
+      50% { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+    /* Tile colors - Black artistic */
+    .t-2 { background: #28282f; color: #f4f4f5; border: 1px solid #3f3e4a; font-size: 32px; }
+    .t-4 { background: #3b3a45; color: #ffffff; border: 1px solid #525160; font-size: 32px; }
+    .t-8 { background: #d9531e; color: #ffffff; font-size: 32px; }
+    .t-16 { background: #ea580c; color: #ffffff; font-size: 30px; }
+    .t-32 { background: #e11d48; color: #ffffff; font-size: 30px; }
+    .t-64 { background: #f43f5e; color: #ffffff; font-size: 30px; }
+    .t-128 { background: #eab308; color: #ffffff; font-size: 26px; box-shadow: 0 0 20px rgba(234, 179, 8, 0.5); }
+    .t-256 { background: #06b6d4; color: #ffffff; font-size: 26px; box-shadow: 0 0 20px rgba(6, 182, 212, 0.5); }
+    .t-512 { background: #a855f7; color: #ffffff; font-size: 26px; box-shadow: 0 0 22px rgba(168, 85, 247, 0.5); }
+    .t-1024 { background: #6366f1; color: #ffffff; font-size: 22px; box-shadow: 0 0 25px rgba(99, 102, 241, 0.6); }
+    .t-2048 { background: #fbbf24; color: #18181b; font-size: 22px; box-shadow: 0 0 30px rgba(245, 158, 11, 0.7); }
+    .t-super { background: #10b981; color: #ffffff; font-size: 20px; box-shadow: 0 0 30px rgba(16, 185, 129, 0.7); }
+
+    .bottom-dock {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 28px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      margin-top: 14px;
+    }
+    .dock-btn-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .dock-btn {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      color: #f4f4f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dock-btn:hover {
+      background: #3f3f46;
+    }
+    .dock-btn:active {
+      transform: scale(0.92);
+    }
+    .dock-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .dots {
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .dot {
+      width: 10px;
+      height: 3px;
+      border-radius: 4px;
+      background: #71717a;
+    }
+    .dot-dim {
+      background: #3f3f46;
+    }
+
+    /* Modal / Overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-box {
+      background: #141417;
+      border: 1px solid #27272a;
+      border-radius: 24px;
+      padding: 22px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      text-align: center;
+    }
+    .modal-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 14px;
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      color: #f4f4f5;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+      transition: all 0.2s;
+    }
+    .modal-btn:hover {
+      background: #3f3f46;
+    }
+    .modal-btn-accent {
+      background: #e11d48;
+      border-color: #f43f5e;
+    }
+    .modal-btn-accent:hover {
+      background: #f43f5e;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Adsterra Banner (320x50) -->
+  <aside class="banner-container">
+    <div class="adsterra-slot" id="adsterra-top">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'bc19fa4707977f96aae7bd973a251726',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="https://smelthrsfranz.com/bc19fa4707977f96aae7bd973a251726/invoke.js"></script>
+    </div>
+  </aside>
+
+  <!-- Main Game Container -->
+  <main class="main-wrap">
+    <!-- Top Bar: Menu & Restart (No Letter 2048) -->
+    <div class="top-bar">
+      <button class="icon-btn" onclick="openSettings()" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <div style="flex: 1;"></div>
+
+      <button class="icon-btn" onclick="restartGame()" aria-label="Restart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Score and Best Score -->
+    <div class="scores-row">
+      <div id="score-card" class="score-card">
+        <span class="score-label">SCORE</span>
+        <span id="score-val" class="score-val">0</span>
+      </div>
+      <div class="score-card">
+        <span class="score-label">BEST</span>
+        <span id="best-val" class="score-val best-val">0</span>
+      </div>
+    </div>
+
+    <!-- 4x4 Game Board -->
+    <div id="game-board" class="board-container">
+      <div class="grid-bg">
+        <div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div>
+        <div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div>
+        <div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div>
+        <div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div><div class="bg-cell"></div>
+      </div>
+      <div id="tiles-layer" class="tiles-layer"></div>
+    </div>
+
+    <!-- Bottom Dock with 3 Action Buttons -->
+    <div class="bottom-dock">
+      <!-- 1. Undo -->
+      <div class="dock-btn-wrap">
+        <button id="undo-btn" class="dock-btn" onclick="undoMove()" disabled aria-label="Undo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 14L4 9l5-5"/>
+            <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/>
+          </svg>
+        </button>
+        <div class="dots"><div class="dot"></div><div class="dot"></div></div>
+      </div>
+
+      <!-- 2. Shuffle / Swap -->
+      <div class="dock-btn-wrap">
+        <button class="dock-btn" onclick="shuffleTiles()" aria-label="Shuffle">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+            <rect x="3" y="4" width="12" height="12" rx="3.5" fill="#f4f4f5" />
+            <rect x="13" y="12" width="12" height="12" rx="3.5" fill="#f4f4f5" />
+            <path d="M17 5.5C18.5 5.5 21 6.5 21 9M21 9L23 7M21 9L19 7" stroke="#27272a" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M11 22.5C9.5 22.5 7 21.5 7 19M7 19L5 21M7 19L9 21" stroke="#27272a" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="dots"><div class="dot"></div><div class="dot dot-dim"></div></div>
+      </div>
+
+      <!-- 3. Grid Options -->
+      <div class="dock-btn-wrap">
+        <button class="dock-btn" onclick="openSettings()" aria-label="Options">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="2" y="2" width="8.5" height="8.5" rx="2.5" />
+            <rect x="13.5" y="2" width="8.5" height="8.5" rx="2.5" />
+            <rect x="2" y="13.5" width="8.5" height="8.5" rx="2.5" />
+            <rect x="13.5" y="13.5" width="8.5" height="8.5" rx="2.5" />
+          </svg>
+        </button>
+        <div class="dots"><div class="dot dot-dim"></div><div class="dot dot-dim"></div></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Adsterra Banner (320x50) -->
+  <aside class="banner-container">
+    <div class="adsterra-slot" id="adsterra-bottom">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'bc19fa4707977f96aae7bd973a251726',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="https://smelthrsfranz.com/bc19fa4707977f96aae7bd973a251726/invoke.js"></script>
+    </div>
+  </aside>
+
+  <!-- Settings & Game Over Modal -->
+  <div id="modal" class="overlay" onclick="closeModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <h2 id="modal-title" style="font-size: 20px; font-weight: 900; margin-bottom: 8px;">Settings</h2>
+      <p id="modal-desc" style="font-size: 13px; color: #a1a1aa; margin-bottom: 16px;">
+        Unity Game ID: <strong style="color: #fbbf24;">5846818</strong><br>
+        Swipe or use Arrow keys to play.
+      </p>
+      <button class="modal-btn" onclick="toggleSound()">
+        <span id="sound-status">Sound: ON</span>
+      </button>
+      <button class="modal-btn modal-btn-accent" onclick="restartGame(); closeModal();">
+        New Game
+      </button>
+      <button class="modal-btn" onclick="closeModal()">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Unity Ads Game ID Configuration
+    window.unityGameId = "5846818";
+
+    // --- Core 2048 Game Engine ---
+    let grid = Array(4).fill(null).map(() => Array(4).fill(0));
+    let score = 0;
+    let bestScore = parseInt(localStorage.getItem('2048_best') || '0', 10);
+    let history = [];
+    let soundEnabled = true;
+    let nextId = 1;
+    let tileMap = new Map(); // id -> { row, col, val, isNew, isMerged }
+
+    document.getElementById('best-val').textContent = bestScore;
+
+    function saveHistory() {
+      history.push({
+        grid: grid.map(r => [...r]),
+        score: score,
+        tiles: Array.from(tileMap.values()).map(t => ({ ...t }))
+      });
+      if (history.length > 5) history.shift();
+      document.getElementById('undo-btn').disabled = false;
+    }
+
+    function addRandomTile() {
+      const empty = [];
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          if (grid[r][c] === 0) empty.push({ r, c });
+        }
+      }
+      if (empty.length === 0) return null;
+      const spot = empty[Math.floor(Math.random() * empty.length)];
+      const val = Math.random() < 0.9 ? 2 : 4;
+      grid[spot.r][spot.c] = val;
+      const id = nextId++;
+      const tile = { id, row: spot.r, col: spot.c, value: val, isNew: true };
+      tileMap.set(id, tile);
+      return tile;
+    }
+
+    function initGame() {
+      grid = Array(4).fill(null).map(() => Array(4).fill(0));
+      tileMap.clear();
+      score = 0;
+      history = [];
+      document.getElementById('score-val').textContent = 0;
+      document.getElementById('undo-btn').disabled = true;
+      addRandomTile();
+      addRandomTile();
+      renderTiles();
+    }
+
+    function getTileClass(v) {
+      if (v <= 2048) return 't-' + v;
+      return 't-super';
+    }
+
+    function renderTiles() {
+      const container = document.getElementById('tiles-layer');
+      container.innerHTML = '';
+      tileMap.forEach(tile => {
+        const div = document.createElement('div');
+        div.className = 'tile' + (tile.isNew ? ' tile-new' : '') + (tile.isMerged ? ' tile-merged' : '');
+        div.style.transform = `translate3d(${tile.col * 100}%, ${tile.row * 100}%, 0)`;
+        
+        const inner = document.createElement('div');
+        inner.className = 'tile-inner ' + getTileClass(tile.value);
+        inner.textContent = tile.value;
+        div.appendChild(inner);
+        container.appendChild(div);
+
+        tile.isNew = false;
+        tile.isMerged = false;
+      });
+    }
+
+    function showScoreFloat(pts) {
+      const card = document.getElementById('score-card');
+      const f = document.createElement('div');
+      f.className = 'score-float';
+      f.textContent = '+' + pts;
+      card.appendChild(f);
+      setTimeout(() => f.remove(), 600);
+    }
+
+    function move(dir) {
+      saveHistory();
+      let moved = false;
+      let points = 0;
+      const newGrid = Array(4).fill(null).map(() => Array(4).fill(0));
+      const newTileMap = new Map();
+
+      function getLine(idx) {
+        const line = [];
+        for (let i = 0; i < 4; i++) {
+          const r = dir === 'LEFT' || dir === 'RIGHT' ? idx : i;
+          const c = dir === 'LEFT' || dir === 'RIGHT' ? i : idx;
+          if (grid[r][c] !== 0) line.push({ r, c, val: grid[r][c] });
+        }
+        if (dir === 'RIGHT' || dir === 'DOWN') line.reverse();
+        return line;
+      }
+
+      for (let i = 0; i < 4; i++) {
+        const line = getLine(i);
+        const mergedLine = [];
+        let skip = false;
+
+        for (let j = 0; j < line.length; j++) {
+          if (skip) { skip = false; continue; }
+          if (j + 1 < line.length && line[j].val === line[j + 1].val) {
+            const sum = line[j].val * 2;
+            mergedLine.push({ val: sum, merged: true });
+            points += sum;
+            skip = true;
+          } else {
+            mergedLine.push({ val: line[j].val, merged: false });
+          }
+        }
+
+        for (let pos = 0; pos < 4; pos++) {
+          const actualPos = (dir === 'RIGHT' || dir === 'DOWN') ? (3 - pos) : pos;
+          const r = dir === 'LEFT' || dir === 'RIGHT' ? i : actualPos;
+          const c = dir === 'LEFT' || dir === 'RIGHT' ? actualPos : i;
+          
+          if (pos < mergedLine.length) {
+            const item = mergedLine[pos];
+            newGrid[r][c] = item.val;
+            const id = nextId++;
+            newTileMap.set(id, { id, row: r, col: c, value: item.val, isMerged: item.merged });
+          }
+        }
+      }
+
+      // Check if grid changed
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          if (grid[r][c] !== newGrid[r][c]) moved = true;
+        }
+      }
+
+      if (moved) {
+        grid = newGrid;
+        tileMap = newTileMap;
+        if (points > 0) {
+          score += points;
+          document.getElementById('score-val').textContent = score;
+          showScoreFloat(points);
+          if (score > bestScore) {
+            bestScore = score;
+            localStorage.setItem('2048_best', bestScore);
+            document.getElementById('best-val').textContent = bestScore;
+          }
+        }
+        addRandomTile();
+        renderTiles();
+        checkGameOver();
+      } else {
+        history.pop();
+        if (history.length === 0) document.getElementById('undo-btn').disabled = true;
+      }
+    }
+
+    function checkGameOver() {
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          if (grid[r][c] === 0) return;
+          if (c < 3 && grid[r][c] === grid[r][c + 1]) return;
+          if (r < 3 && grid[r][c] === grid[r + 1][c]) return;
+        }
+      }
+      // Game Over
+      document.getElementById('modal-title').textContent = 'Game Over';
+      document.getElementById('modal-desc').textContent = 'No more valid moves remaining.';
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function undoMove() {
+      if (history.length === 0) return;
+      const state = history.pop();
+      grid = state.grid.map(r => [...r]);
+      score = state.score;
+      document.getElementById('score-val').textContent = score;
+      tileMap.clear();
+      state.tiles.forEach(t => tileMap.set(t.id, { ...t }));
+      renderTiles();
+      if (history.length === 0) document.getElementById('undo-btn').disabled = true;
+    }
+
+    function shuffleTiles() {
+      saveHistory();
+      const vals = [];
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          if (grid[r][c] !== 0) vals.push(grid[r][c]);
+        }
+      }
+      for (let i = vals.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [vals[i], vals[j]] = [vals[j], vals[i]];
+      }
+      tileMap.clear();
+      let vIdx = 0;
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          if (grid[r][c] !== 0) {
+            grid[r][c] = vals[vIdx++];
+            const id = nextId++;
+            tileMap.set(id, { id, row: r, col: c, value: grid[r][c], isNew: true });
+          }
+        }
+      }
+      renderTiles();
+    }
+
+    function restartGame() {
+      initGame();
+    }
+
+    function openSettings() {
+      document.getElementById('modal-title').textContent = 'Settings & Ads';
+      document.getElementById('modal-desc').innerHTML = 'Unity Ads Game ID: <strong style="color: #fbbf24;">5846818</strong><br>Banner Placements: Top & Bottom';
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal(e) {
+      document.getElementById('modal').classList.remove('active');
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('sound-status').textContent = 'Sound: ' + (soundEnabled ? 'ON' : 'OFF');
+    }
+
+    // Swipe and Keyboard Controls
+    let startX = 0, startY = 0;
+    const board = document.getElementById('game-board');
+
+    board.addEventListener('touchstart', e => {
+      if (e.touches.length === 1) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    board.addEventListener('touchend', e => {
+      if (e.changedTouches.length === 1) {
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) > 25 || Math.abs(dy) > 25) {
+          if (Math.abs(dx) > Math.abs(dy)) {
+            move(dx > 0 ? 'RIGHT' : 'LEFT');
+          } else {
+            move(dy > 0 ? 'DOWN' : 'UP');
+          }
+        }
+      }
+    });
+
+    // Mouse drag support
+    board.addEventListener('mousedown', e => {
+      startX = e.clientX;
+      startY = e.clientY;
+    });
+
+    board.addEventListener('mouseup', e => {
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+          move(dx > 0 ? 'RIGHT' : 'LEFT');
+        } else {
+          move(dy > 0 ? 'DOWN' : 'UP');
+        }
+      }
+    });
+
+    window.addEventListener('keydown', e => {
+      if (['ArrowUp', 'KeyW'].includes(e.code)) { e.preventDefault(); move('UP'); }
+      else if (['ArrowDown', 'KeyS'].includes(e.code)) { e.preventDefault(); move('DOWN'); }
+      else if (['ArrowLeft', 'KeyA'].includes(e.code)) { e.preventDefault(); move('LEFT'); }
+      else if (['ArrowRight', 'KeyD'].includes(e.code)) { e.preventDefault(); move('RIGHT'); }
+      else if (e.code === 'KeyZ' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); undoMove(); }
+    });
+
+    // Start
+    initGame();
+  </script>
+</body>
+</html>
